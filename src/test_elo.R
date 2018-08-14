@@ -13,11 +13,10 @@ ex <- data.frame(
   )
 
 teams <- data.frame(
-  event = 1,
   group = c("a", "b", "c"),
+  event = 0,
   elo = 1500,
   stringsAsFactors = FALSE
-  
 )
 
 running_elo <- function() {
@@ -27,7 +26,7 @@ running_elo <- function() {
     
     elo1 <- teams[teams$group == match$group1, "elo"][[1]]
     elo2 <- teams[teams$group == match$group2, "elo"][[1]]
-    
+
     elo_update <- elo.calc(
       score(match["val1"], match["val2"]),
       elo1,
@@ -43,11 +42,11 @@ running_elo <- function() {
         event = match$event
       ) %>% 
       select(event, group, elo)
-      
+    
     teams <- teams %>% 
-      bind_rows(new_elo) %>% 
-      arrange(desc(event))
-    }
+        bind_rows(new_elo) %>% 
+        arrange(desc(event))
+  }
   return(teams)
 }
 
