@@ -57,8 +57,10 @@ br_dat <- map(br_urls, ~ifelse(RCurl::url.exists(.), ., NA)) %>%
 # clean up
 # select the valid columns
 br_dat <- br_dat[1:10]
-# convert date to date
-br_dat$date <- mdy(br_dat$date)
+# convert date to date format and sort
+br_dat <- br_dat %>% 
+  mutate(date = mdy(date)) %>% 
+  arrange(date)
 
 # write the data
 write_csv(br_dat, here::here("output/nba_scores_2001-2018.csv"))
