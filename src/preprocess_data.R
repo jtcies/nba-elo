@@ -10,10 +10,12 @@ library(lubridate)
 #     - Seattle moved to OKC in 2008
 
 # do I also need to figure out playoffs? 
+# or game in the season (this would allow for playoff calc)
 
 # functions -----------
 
 assign_season <- function(date) {
+  # determine season based on date of game
   season <- integer(length = length(date))
   season[month(date) >= 10] <- year(date[month(date) >= 10]) + 1
   season[month(date) < 10] <- year(date[month(date) < 10])
@@ -21,7 +23,7 @@ assign_season <- function(date) {
 }
 
 recode_team <- function(data, team_name, new_name) {
-  
+  # reocde all team names
   team_name <- enquo(team_name)
   recode <- quo_name(enquo(new_name))
   
