@@ -57,8 +57,9 @@ recode_team <- function(data, team_name, new_name) {
         !!team_name == "Oklahoma City Thunder" ~ "OKC",
         !!team_name == "Charlotte Bobcats" ~ "CHA",
         !!team_name == "New Orleans Hornets" ~ "NOP",
-        !!team_name == "Seattle Supersonics" ~ "OKC",
+        !!team_name == "Seattle SuperSonics" ~ "OKC",
         !!team_name == "Brooklyn Nets" ~ "BKN",
+        !!team_name == "Detroit Pistons" ~ "DET",
         !!team_name == "Charlotte Hornets" & season %in% c(2001:2002) ~ "NOP",
         !!team_name == "Charlotte Hornets" & season > 2014 ~ "CHA",
         !!team_name == "New Orleans Pelicans" ~ "NOP",
@@ -78,9 +79,9 @@ nba <- read_csv(here::here("output/nba_scores_2001-2018.csv"))
 
 nba$season <- assign_season(nba$date)
 
-nba %>% 
+nba <- nba %>% 
   recode_team(home, "home_team") %>% 
   recode_team(visitor, "vis_team")
 
-
+write_csv(nba, here::here("output/nba_cleaned.csv"))
 
