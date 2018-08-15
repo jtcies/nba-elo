@@ -87,6 +87,14 @@ teams <- nba %>%
     date = ymd(paste0(season, "1001"))
   )
 
+fill_elo <- function(data) {
+  # function to fill in missing elo
+  data %>% 
+    complete(date = full_seq(date, period = 1), team) %>% 
+    arrange(desc(date)) %>% 
+    fill(elo)
+}
+
 # run the function and clean up -----------------
 # this will take a few minutes to run
 running_elo <- elo_calc(nba, teams)
@@ -94,13 +102,8 @@ running_elo <- elo_calc(nba, teams)
 # fill in missing dates
 
 complete_elo <- running_elo %>% 
-  complete(
-    date = full_seq(date, period = 1),
-    team
-  ) %>% 
-  arrange(desc(date)) %>% 
-  group_by(team) %>% 
-  fill(elo) %>% 
+  split(.$team) %>% 
+  map_dfr(fill_elo) %>% 
   mutate(season = assign_season(date))
 
 # write ----------------------
