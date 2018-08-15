@@ -79,11 +79,41 @@ nba <- read_csv(here::here("output/nba_scores_2001-2018.csv"))
 
 # transform -------------------
 
+# season
 nba$season <- assign_season(nba$date)
 
+# name recode
 nba <- nba %>% 
   recode_team(home, "home_team") %>% 
   recode_team(visitor, "vis_team")
 
-write_csv(nba, here::here("output/nba_cleaned.csv"))
+# game number and playoffs
 
+nba <- nba %>% 
+  arrange(date) %>% 
+  group_by(season) %>% 
+  mutate(game_id = row_number()) %>% 
+  ungroup()
+
+nba_long <- nba %>% 
+  select(season, game_id, home_team, vis_team) %>% 
+  gather(game, team, 3:4) %>% 
+  arrange(season, game_id) %>% 
+  group_by(season, team) %>% 
+  mutate(game_number = row_number()) %>% 
+  ungroup() %>% 
+  select(season, game_id, game, game_number) %>% 
+  spread(game, game_number) %>% 
+  rename(home_game_number = home_team, vis_game_number = vis_team)
+
+nba <- nba %>% 
+  left_join(nba_long, by = c("season", "game_id")) %>% 
+  mutate(
+    playoffs = case_when(
+      season == 2012 & home_game_number > 66 ~ 1,
+      home_game_number > 82 ~ 1,
+      TRUE ~ 0
+    )
+  )
+
+write_csv(nba, here::here("output/nba_cleaned.csv"))
