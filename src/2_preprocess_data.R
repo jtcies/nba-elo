@@ -2,6 +2,9 @@ library(tidyverse)
 library(here)
 library(lubridate)
 
+# get the assign season function
+source(here::here("src/helper_funs.R"))
+
 # this script:
 # - creates a variable for the correct season
 # - creates a variable for a team code which persists; rules:
@@ -9,18 +12,8 @@ library(lubridate)
 #     - Char of 2004 is new
 #     - Seattle moved to OKC in 2008
 
-# do I also need to figure out playoffs? 
-# or game in the season (this would allow for playoff calc)
 
 # functions -----------
-
-assign_season <- function(date) {
-  # determine season based on date of game
-  season <- integer(length = length(date))
-  season[month(date) >= 10] <- year(date[month(date) >= 10]) + 1
-  season[month(date) < 10] <- year(date[month(date) < 10])
-  season
-}
 
 recode_team <- function(data, team_name, new_name) {
   # reocde all team names
@@ -41,13 +34,13 @@ recode_team <- function(data, team_name, new_name) {
         !!team_name == "Houston Rockets" ~ "HOU",
         !!team_name == "Atlanta Hawks" ~ "ATL",
         !!team_name == "Chicago Bulls" ~ "CHI",
-        !!team_name == "Philadelphia 76ers" ~ "PHL",
-        !!team_name == "Phoenix Suns" ~ "PHX",
+        !!team_name == "Philadelphia 76ers" ~ "PHI",
+        !!team_name == "Phoenix Suns" ~ "PHO",
         !!team_name == "Utah Jazz" ~ "UTA",
         !!team_name == "Toronto Raptors" ~ "TOR",
         !!team_name == "Orlando Magic" ~ "ORL",
         !!team_name == "Los Angeles Clippers" ~ "LAC",
-        !!team_name == "Washington Wizards" ~ "WSH",
+        !!team_name == "Washington Wizards" ~ "WAS",
         !!team_name == "Denver Nuggets" ~ "DEN",
         !!team_name == "Milwaukee Bucks" ~ "MIL",
         !!team_name == "Portland Trail Blazers" ~ "POR",
