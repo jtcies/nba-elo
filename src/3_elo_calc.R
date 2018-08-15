@@ -91,7 +91,7 @@ fill_elo <- function(data) {
   # function to fill in missing elo
   data %>% 
     complete(date = full_seq(date, period = 1), team) %>% 
-    arrange(desc(date)) %>% 
+    arrange(date) %>% 
     fill(elo)
 }
 
