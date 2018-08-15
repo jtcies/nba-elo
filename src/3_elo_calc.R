@@ -60,15 +60,24 @@ carry_over <- function(teams) {
 
 elo_calc <- function(games, teams) {
   
-  for(j in unique(games$season)) {
-    # run the calculation within each season
-    season_games <- games[games$season == j, ]
+  seasons <- unique(games$season)
   
+  for(j in seq_len(length(seasons))) {
+    # run the calculation within each season
+    season_games <- games[games$season == seasons[[j]], ]
     teams <- elo_calc_in_season(season_games, teams)
     # then apply the carryover
     teams <- carry_over(teams)
   }
   return(teams)
+}
+
+fill_elo <- function(data) {
+  # function to fill in missing elol
+  data %>% 
+    complete(date = full_seq(date, period = 1), team) %>% 
+    arrange(date) %>% 
+    fill(elo)
 }
 
 # import and create new teams table ----------------------
@@ -84,16 +93,8 @@ teams <- nba %>%
   mutate(
     season = if_else(team == "CHA", 2005, 2001),
     elo = if_else(team == "CHA", 1300, 1500),
-    date = ymd(paste0(season, "1001"))
+    date = ymd(paste0(season - 1, "1001"))
   )
-
-fill_elo <- function(data) {
-  # function to fill in missing elo
-  data %>% 
-    complete(date = full_seq(date, period = 1), team) %>% 
-    arrange(date) %>% 
-    fill(elo)
-}
 
 # run the function and clean up -----------------
 # this will take a few minutes to run
