@@ -77,8 +77,8 @@ fill_elo <- function(data) {
   data %>% 
     tidyr::complete(date = full_seq(date, period = 1), team) %>% 
     arrange(date) %>% 
-    filter(!month(date) %in% 7:9) %>%  
-    fill(elo)
+    fill(elo) %>% 
+    mutate(elo = if_else(month(date) %in% 7:9, NA_real_, elo))
 }
 
 # import and create new teams table ----------------------
