@@ -3,6 +3,8 @@ library(shiny)
 library(here)
 library(lubridate)
 
+source(here::here("src/app_helpers.R"))
+
 scores <- read_csv(here::here("output/nba_cleaned.csv"), guess_max = 5000)
 elo <- read_csv(here::here("output/running_elo.csv"), guess_max = 5000)
 
@@ -23,12 +25,13 @@ ui <- fluidPage(
   
   sidebarLayout(
     sidebarPanel(
-      dateRangeInput(
-        "dates", "Date range",
-        start = "1997-10-01",
-        end = "2018-10-01",
-        format = "mm/dd/yyyy"
+      radioButtons(
+        "option", "Display by:",
+        choices = list("season" = "season", 
+                       "date range" = "date_range"),
+        selected = "season",
       ),
+      input_options(),
       selectInput(
         "team", "Team",
         choices = unique(elo$pretty_name),
@@ -45,19 +48,46 @@ server <- function(input, output) {
   
   output$elo_plot <- renderPlot({
     
-    elo_dat <- elo %>% 
+    filtered_all <- reactive ({
+      if (input$option == "date_range") {
+        elo %>% 
+          filter(
+            date >= input$dates[[1]], 
+            date <= input$dates[[2]]
+          )
+      }
+      if (input$option == "season"){
+        elo %>% 
+          filter(
+            season == input$season
+          )
+      }
+    })
+    
+    filtered_team <- filtered_all() %>% 
       filter(
-        date > input$dates[[1]], 
-        date < input$dates[[2]],
         pretty_name == input$team
       )
     
-      elo_plot <- ggplot(elo_dat, aes(date, elo, group = team)) +
-        geom_line() +
+      elo_plot <- ggplot() +
+        geom_line(
+          data = filtered_team, 
+          aes(date, elo, group = team), 
+          size = 1.5
+        ) +
+        geom_line(
+          data = filtered_all(), 
+          aes(date, elo, group = team), 
+          alpha = 0.1
+        ) + 
         scale_x_date(
-          breaks = seq.Date(min(elo_dat$date), max(elo_dat$date),
-                                 by = "1 year"),
-          date_labels = as.character(unique(elo_dat$season))) +
+          breaks = seq.Date(
+            from = ymd(paste0(year(input$dates[[1]]), "1001")),
+            to = ymd(paste0(year(input$dates[[2]]), "1001")),
+            by = "1 year"
+          ), 
+          date_labels = as.character(unique(filtered_all$season))
+        ) +
         labs(x = "season")
     
     elo_plot
