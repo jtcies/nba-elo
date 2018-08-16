@@ -9,9 +9,9 @@ output: html_notebook
 library(tidyverse)
 library(here)
 
-scores <- read_csv(here::here("output/nba_cleaned.csv"))
+scores <- read_csv(here::here("output/nba_cleaned.csv"), guess_max = 5000)
 
-elo <- read_csv(here::here("output/running_elo.csv"))
+elo <- read_csv(here::here("output/running_elo.csv"), guess_max = 5000)
 
 ```
 
@@ -19,7 +19,9 @@ all elos over time
 
 ```{r}
 
-ggplot(elo, aes(date, elo, group = team)) +
+elo %>% 
+  mutate(team_season = paste(team, season)) %>% 
+  ggplot(aes(date, elo, group = team_season)) +
   geom_line(alpha = 0.5)
 
 ```
@@ -40,8 +42,7 @@ by team
 ggplot(elo, aes(date, elo, group = team)) +
   geom_line(alpha = 0.5) +
   facet_wrap(~team)
-
 ```
 
-check against 538 elo
+
 

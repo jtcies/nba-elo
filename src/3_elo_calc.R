@@ -73,25 +73,26 @@ elo_calc <- function(games, teams) {
 }
 
 fill_elo <- function(data) {
-  # function to fill in missing elol
+  # function to fill in missing elo
   data %>% 
-    complete(date = full_seq(date, period = 1), team) %>% 
+    tidyr::complete(date = full_seq(date, period = 1), team) %>% 
     arrange(date) %>% 
+    filter(!month(date) %in% 7:9) %>%  
     fill(elo)
 }
 
 # import and create new teams table ----------------------
 
-nba <- read_csv(here::here("output/nba_cleaned.csv"))
+nba <- read_csv(here::here("output/nba_cleaned.csv"), guess_max = 5000)
 
 # create a base elo table
-# start everyone at 1500 in 2001 season
+# start everyone at 1500 in 1997 season
 # for expansion teams, start at 1300 in new season, rec by 538
 teams <- nba %>% 
   distinct(home_team) %>% 
   rename(team = home_team) %>% 
   mutate(
-    season = if_else(team == "CHA", 2005, 2001),
+    season = if_else(team == "CHA", 2005, 1997),
     elo = if_else(team == "CHA", 1300, 1500),
     date = ymd(paste0(season - 1, "1001"))
   )

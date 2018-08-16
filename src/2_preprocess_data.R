@@ -55,11 +55,12 @@ recode_team <- function(data, team_name, new_name) {
         !!team_name == "Seattle SuperSonics" ~ "OKC",
         !!team_name == "Brooklyn Nets" ~ "BKN",
         !!team_name == "Detroit Pistons" ~ "DET",
-        !!team_name == "Charlotte Hornets" & season %in% c(2001:2002) ~ "NOP",
+        !!team_name == "Charlotte Hornets" & season %in% 1997:2002 ~ "NOP",
         !!team_name == "Charlotte Hornets" & season > 2014 ~ "CHA",
         !!team_name == "New Orleans Pelicans" ~ "NOP",
         !!team_name == "New Orleans/Oklahoma City Hornets" ~ "NOP",
         !!team_name == "Vancouver Grizzlies" ~ "MEM",
+        !!team_name == "Washington Bullets" ~ "WAS",
         TRUE ~ NA_character_
       )
     )
@@ -68,7 +69,7 @@ recode_team <- function(data, team_name, new_name) {
 # import ----------------
 
 
-nba <- read_csv(here::here("output/nba_scores_2001-2018.csv"))
+nba <- read_csv(here::here("output/nba_scores_1997-2018.csv"))
 
 # transform -------------------
 

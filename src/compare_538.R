@@ -8,7 +8,7 @@ library(here)
 
 f38 <- read_csv(here::here("data/nba_elo_538.csv"))
 
-elo <- read_csv(here::here("output/running_elo.csv"))
+elo <- read_csv(here::here("output/running_elo.csv"), guess_max = 5000)
 
 # clean up f38
 # take post game elo
@@ -27,11 +27,12 @@ f38_tidy <- bind_rows(f38_tidy1, f38_tidy2) %>%
       team == "VAN" ~ "MEM",
       team == "SEA" ~ "OKC",
       team == "BRK" ~ "BKN",
-      team == "CHH" & season %in% c(2001:2002) ~ "NOP",
+      team == "CHH" & season %in% c(1997:2002) ~ "NOP",
       team == "CHH" & season > 2014 ~ "CHA",
       team == "CHO" ~ "CHA",
       team == "NJN" ~ "BKN",
       team == "NOK" ~ "NOP",
+      team == "WSB" ~ "WAS", 
       TRUE ~ team
     )
   ) %>% 

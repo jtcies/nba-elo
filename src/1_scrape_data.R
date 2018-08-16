@@ -72,4 +72,4 @@ br_dat <- br_dat %>%
   arrange(date)
 
 # write the data
-write_csv(br_dat, here::here("output/nba_scores_2001-2018.csv"))
+write_csv(br_dat, here::here("output/nba_scores_1997-2018.csv"))
