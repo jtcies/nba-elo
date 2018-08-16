@@ -1,6 +1,7 @@
 library(tidyverse)
 library(shiny)
 library(here)
+library(lubridate)
 
 scores <- read_csv(here::here("output/nba_cleaned.csv"), guess_max = 5000)
 elo <- read_csv(here::here("output/running_elo.csv"), guess_max = 5000)
@@ -26,7 +27,8 @@ ui <- fluidPage(
         "dates", "Date range",
         start = "1997-10-01",
         end = "2018-10-01",
-        format = "mm/dd/yyyy"),
+        format = "mm/dd/yyyy"
+      ),
       selectInput(
         "team", "Team",
         choices = unique(elo$pretty_name),
@@ -43,14 +45,20 @@ server <- function(input, output) {
   
   output$elo_plot <- renderPlot({
     
-    elo_plot <- elo %>% 
+    elo_dat <- elo %>% 
       filter(
         date > input$dates[[1]], 
         date < input$dates[[2]],
         pretty_name == input$team
-      ) %>% 
-      ggplot(aes(date, elo, group = team)) +
-        geom_line()
+      )
+    
+      elo_plot <- ggplot(elo_dat, aes(date, elo, group = team)) +
+        geom_line() +
+        scale_x_date(
+          breaks = seq.Date(min(elo_dat$date), max(elo_dat$date),
+                                 by = "1 year"),
+          date_labels = as.character(unique(elo_dat$season))) +
+        labs(x = "season")
     
     elo_plot
   })
