@@ -94,11 +94,16 @@ nba_long <- nba %>%
   gather(game, team, 3:4) %>% 
   arrange(season, game_id) %>% 
   group_by(season, team) %>% 
-  mutate(game_number = row_number()) %>% 
+  mutate(
+    game_number = row_number()
+  ) %>% 
   ungroup() %>% 
   select(season, game_id, game, game_number) %>% 
   spread(game, game_number) %>% 
-  rename(home_game_number = home_team, vis_game_number = vis_team)
+  rename(
+    home_game_number = home_team, 
+    vis_game_number = vis_team
+  )
 
 nba <- nba %>% 
   left_join(nba_long, by = c("season", "game_id")) %>% 
