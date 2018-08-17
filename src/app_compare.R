@@ -6,6 +6,8 @@ source(here::here("src/app_helpers.R"))
 
 elo <- read_csv(here::here("output/running_elo.csv"), guess_max = 5000)
 scores <- read_csv(here::here("output/nba_cleaned.csv"), guess_max = 5000)
+elo_scores <- read_csv(here::here("output/nba_scores_w_elo.csv"), 
+                       guess_max = 5000)
 
 # remove 1997 baseline season
 # and add in official name
@@ -25,28 +27,38 @@ ui <- ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       selectInput(
-        "home_team", "Home team",
-        choices = unique(elo$pretty_name),
-        selected = "Cleveland Cavaliers"
-      ),
-      selectInput(
         "vis_team", "Away team",
         choices = unique(elo$pretty_name),
         selected = "Golden State Warriors"
       ),
+      selectInput(
+        "home_team", "Home team",
+        choices = unique(elo$pretty_name),
+        selected = "Cleveland Cavaliers"
+      ),
       dateInput(
         "date", "Date:",
         value = "06-08-2018",
-        format = "mm/dd/yyyy"
+        format = "mm/dd/yyyy",
+        min = "1997-10-01",
+        max = "2018-10-01"
       )
     ),
     mainPanel(
-      h3("home team"),
-      textOutput("home_elo"),
-      textOutput("home_win_prob"),
-      h3("away team"),
-      textOutput("vis_elo"),
-      textOutput("vis_win_prob"),
+      fluidRow(
+        column(6, h3("away team")),
+        column(6, h3("home team"))
+      ),
+      fluidRow(
+        column(6, textOutput("vis_elo")),
+        column(6, textOutput("home_elo"))
+      ),
+      fluidRow(
+        column(6, textOutput("vis_win_prob")),
+        column(6, textOutput("home_win_prob"))
+      ),
+      br(),
+      br(),
       h2("real games on this day"),
       tableOutput("games_date")
     )
@@ -80,30 +92,20 @@ server <- function(input, output, session) {
   
   date_games <- reactive({
     
-    dat <- scores %>% 
-      filter(date == test_date) %>% 
-      left_join(
-        elo %>% 
-          rename(vis_elo = elo) %>% 
-          filter(date %in% c(test_date, test_date - 1)),
-        by = c("vis_team" = "team")
-      ) %>% 
-      left_join(
-        elo %>% 
-          rename(home_elo = elo) %>% 
-          filter(date %in% c(test_date, test_date -1)),
-        by = c("home_team" = "team")
-      ) %>% 
-      arrange(date) %>% 
-      mutate(
-        prev_home_elo = lag(home_elo),
-        prev_vis_elo = lag(vis_elo)
-      ) %>% 
-      filter(date == test_date) %>% 
-      select(visitor, visitor_pts, home, home_pts,
-             prev_vis_elo, prev_home_elo,
-             vis_elo_after = vis_elo, home_elo_after = home_elo)
-    
+    dat <- elo_scores %>% 
+      filter(date == input$date) %>% 
+      select(
+        visitor,
+        vis_elo_before,
+        vis_elo_after,
+        visitor_pts,
+        home_pts,
+        home_elo_after,
+        home_elo_before,
+        home,
+        ot,
+        notes
+      )
     dat
   })
   
