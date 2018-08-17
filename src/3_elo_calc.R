@@ -18,8 +18,8 @@ elo_calc_in_season <- function(games, teams) {
     game <- games[i, ]
     
     # extract most recent elo adding in home/away adjustment
-    elo_home <- teams[teams$team == game$home_team, "elo"][[1]] - 100
-    elo_vis <- teams[teams$team == game$vis_team, "elo"][[1]] + 100
+    elo_home <- teams[teams$team == game$home_team, "elo"][[1]] - 35
+    elo_vis <- teams[teams$team == game$vis_team, "elo"][[1]] + 35
     
     elo_update <- elo.calc(
       score(game["home_pts"], game["visitor_pts"]),

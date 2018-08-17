@@ -30,7 +30,8 @@ elo_scores <- elo_scores %>%
     vis_win_prob = make_pct(1 - home_win_prob),
     home_win_prob = make_pct(home_win_prob),
     `OT?` = if_else(is.na(ot), "", "yes"),
-    notes = if_else(is.na(notes), "", "notes")
+    notes = if_else(is.na(notes), "", "notes"),
+    playoffs = if_else(playoffs == 1, "yes", "")
   ) %>% 
   select(
     date,
@@ -41,7 +42,8 @@ elo_scores <- elo_scores %>%
     home_win_prob,
     home,
     `OT?`,
-    notes
+    playoffs,
+    notes,
   )
 
 ui <- ui <- fluidPage(
@@ -110,22 +112,28 @@ server <- function(input, output, session) {
   })
 
   prob <- reactive({
-    elo.prob(home_dat()$elo + 100, vis_dat()$elo - 100)
+    elo.prob(home_dat()$elo + 35, vis_dat()$elo - 35)
   })
   
   date_games <- reactive({
     dat <- elo_scores %>% 
       filter(date == input$date) %>% 
-      select(-date)
+      select(-date) %>% 
+      rename(`away points` = visitor_pts,
+             `home points` = home_pts,
+             `away` = visitor,
+             `away win prob.` = vis_win_prob,
+             `home win prob.` = home_win_prob,
+             `playoffs?` = playoffs)
     dat
   })
   
   output$home_elo <- renderText({
-    paste0(round(home_dat()$elo), " (plus home bonus)")
+    paste0(round(home_dat()$elo), "\n(plus home bonus)")
   })
   
   output$vis_elo <- renderText({
-    paste0(round(vis_dat()$elo), " (minus away penalty)")
+    paste0(round(vis_dat()$elo), "\n(minus away penalty)")
   })
   
   output$home_win_prob <- renderText({make_pct(prob())})

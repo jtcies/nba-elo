@@ -25,7 +25,7 @@ elo_scores <- scores %>%
 
 elo_scores <- elo_scores %>% 
   mutate(
-    home_win_prob = elo.prob(home_elo_before + 100, vis_elo_before - 100)
+    home_win_prob = elo.prob(home_elo_before + 35, vis_elo_before - 35)
   )
 
 write_csv(elo_scores, here::here("output/nba_scores_w_elo.csv"))  
