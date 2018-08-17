@@ -3,13 +3,17 @@ library(elo)
 library(lubridate)
 library(here)
 
+# calculates elo for each team and each day between 1997 and 2018 seasons
+# excluding summers due too many transfers
+# uses elo as 'beginning of the day' before games have been played
+
 # get the assign season function
 source(here::here("src/helper_funs.R"))
 
 # functions -------------
-elo_calc_in_season <- function(games, teams){
+elo_calc_in_season <- function(games, teams) {
   
-  for(i in seq_len(nrow(games))) {
+  for (i in seq_len(nrow(games))) {
     # function for creating a running elo
     game <- games[i, ]
     
@@ -48,11 +52,11 @@ carry_over <- function(teams) {
 # at the start of every new season, carry over 75% of elo
 # rec by 538, start new season on 10/01
   new_season <- teams %>% 
-    filter(season == season[[1]]) %>% 
+    filter(season == season[[1]]) %>% # don't include expansions til they join
     distinct(team, .keep_all = TRUE) %>% 
     mutate(
       elo = (.75 * elo) + (.25 * 1505),
-      date = ymd(paste0(season, "1001")),
+      date = ymd(paste0(season, "0930")),
       season = season + 1 # add one for start of new season
   )
   bind_rows(new_season, teams)
@@ -62,7 +66,7 @@ elo_calc <- function(games, teams) {
   
   seasons <- unique(games$season)
   
-  for(j in seq_len(length(seasons))) {
+  for (j in seq_len(length(seasons))) {
     # run the calculation within each season
     season_games <- games[games$season == seasons[[j]], ]
     teams <- elo_calc_in_season(season_games, teams)
@@ -102,11 +106,13 @@ teams <- nba %>%
 running_elo <- elo_calc(nba, teams)
 
 # fill in missing dates
-
 complete_elo <- running_elo %>% 
   split(.$team) %>% 
   map_dfr(fill_elo) %>% 
-  mutate(season = assign_season(date))
+  mutate(
+    season = assign_season(date),
+    elo = lag(elo) # get elo at beginning of day instead of end
+  )
 
 # write ----------------------
 

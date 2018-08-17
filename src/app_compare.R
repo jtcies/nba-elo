@@ -22,6 +22,28 @@ elo <- elo %>%
   group_by(team) %>% 
   fill(pretty_name)
 
+# also for the app, elo should be beginning of the day rather than end
+# of the day which is how the data is current organized. 
+
+elo_scores <- elo_scores %>% 
+  mutate(
+    vis_win_prob = make_pct(1 - home_win_prob),
+    home_win_prob = make_pct(home_win_prob),
+    `OT?` = if_else(is.na(ot), "", "yes"),
+    notes = if_else(is.na(notes), "", "notes")
+  ) %>% 
+  select(
+    date,
+    visitor,
+    vis_win_prob,
+    visitor_pts,
+    home_pts,
+    home_win_prob,
+    home,
+    `OT?`,
+    notes
+  )
+
 ui <- ui <- fluidPage(
   
   sidebarLayout(
@@ -46,20 +68,23 @@ ui <- ui <- fluidPage(
     ),
     mainPanel(
       fluidRow(
-        column(6, h3("away team")),
-        column(6, h3("home team"))
+        column(4, align = "center", h3("away team")),
+        column(4),
+        column(4, align = "center", h3("home team"))
       ),
       fluidRow(
-        column(6, textOutput("vis_elo")),
-        column(6, textOutput("home_elo"))
+        column(4, align = "center", textOutput("vis_elo")),
+        column(4, align = "center", p("ELO")),
+        column(4, align = "center", textOutput("home_elo"))
       ),
       fluidRow(
-        column(6, textOutput("vis_win_prob")),
-        column(6, textOutput("home_win_prob"))
+        column(4, align = "center", textOutput("vis_win_prob")),
+        column(4, align = "center", p("win probability")),
+        column(4, align = "center", textOutput("home_win_prob"))
       ),
       br(),
       br(),
-      h2("real games on this day"),
+      h2("NBA games on this day"),
       tableOutput("games_date")
     )
   )
@@ -84,28 +109,14 @@ server <- function(input, output, session) {
       )
   })
 
-  
   prob <- reactive({
     elo.prob(home_dat()$elo + 100, vis_dat()$elo - 100)
   })
   
-  
   date_games <- reactive({
-    
     dat <- elo_scores %>% 
       filter(date == input$date) %>% 
-      select(
-        visitor,
-        vis_elo_before,
-        vis_elo_after,
-        visitor_pts,
-        home_pts,
-        home_elo_after,
-        home_elo_before,
-        home,
-        ot,
-        notes
-      )
+      select(-date)
     dat
   })
   
@@ -119,7 +130,6 @@ server <- function(input, output, session) {
   
   output$home_win_prob <- renderText({make_pct(prob())})
   output$vis_win_prob <- renderText({make_pct(1 - prob())})
-  
   output$games_date <- renderTable({date_games()})
 }
 
