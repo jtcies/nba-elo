@@ -35,12 +35,12 @@ elo_scores <- elo_scores %>%
   ) %>% 
   select(
     date,
-    visitor,
     vis_win_prob,
+    visitor,
     visitor_pts,
     home_pts,
-    home_win_prob,
     home,
+    home_win_prob,
     `OT?`,
     playoffs,
     notes,
@@ -73,6 +73,11 @@ ui <- ui <- fluidPage(
         column(4, align = "center", h3("away team")),
         column(4),
         column(4, align = "center", h3("home team"))
+      ),
+      fluidRow(
+        column(4, align = "center", htmlOutput("vis_logo")),
+        column(4),
+        column(4, align = "center", htmlOutput("home_logo"))
       ),
       fluidRow(
         column(4, align = "center", textOutput("vis_elo")),
@@ -139,7 +144,22 @@ server <- function(input, output, session) {
   output$home_win_prob <- renderText({make_pct(prob())})
   output$vis_win_prob <- renderText({make_pct(1 - prob())})
   output$games_date <- renderTable({date_games()})
+  
+  output$home_logo <- renderText({
+    name <- scores$home_team[scores$home == input$home_team]
+    paste0(
+      "<img src='http://stats.nba.com/media/img/teams/logos/",
+      name,
+      "_logo.svg' style='width:200px;height:200px'>")
+  })
+  
+  output$vis_logo <- renderText({
+    name <- scores$vis_team[scores$visitor == input$vis_team]
+    paste0(
+      "<img src='http://stats.nba.com/media/img/teams/logos/",
+      name,
+      "_logo.svg' style='width:243px;height:243px'>")
+  })
 }
-
 
 shinyApp(ui, server)
