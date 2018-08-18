@@ -148,9 +148,10 @@ server <- function(input, output, session) {
   output$home_logo <- renderText({
     name <- scores$home_team[scores$home == input$home_team]
     paste0(
-      "<img src='http://stats.nba.com/media/img/teams/logos/",
+      '<img src="http://stats.nba.com/media/img/teams/logos/',
       name,
-      "_logo.svg' style='width:200px;height:200px'>")
+      '_logo.svg" style="width:200px;height:200px">'
+    )
   })
   
   output$vis_logo <- renderText({
@@ -158,8 +159,10 @@ server <- function(input, output, session) {
     paste0(
       "<img src='http://stats.nba.com/media/img/teams/logos/",
       name,
-      "_logo.svg' style='width:243px;height:243px'>")
+      "_logo.svg' style='width:243px;height:243px'>"
+    )
   })
+  
 }
 
 shinyApp(ui, server)
