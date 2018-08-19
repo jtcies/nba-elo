@@ -44,8 +44,13 @@ both <- f38_tidy %>%
   left_join(elo, by = c("date", "team"))
 
 # plot
-ggplot(both, aes(elo, elo_538, color = season)) +
-  geom_point()
+both %>% 
+  filter(season > 1997) %>% 
+  ggplot(aes(elo, elo_538, color = season)) +
+    geom_point() +
+    geom_smooth(method = "lm")
+
+lm(elo_538 ~ elo, data = both)
 
 # correlation by year
 
