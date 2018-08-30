@@ -42,8 +42,7 @@ elo_scores <- elo_scores %>%
     home,
     home_win_prob,
     `OT?`,
-    playoffs,
-    notes,
+    playoffs
   )
 
 ui <- ui <- fluidPage(
@@ -146,23 +145,20 @@ server <- function(input, output, session) {
   output$games_date <- renderTable({date_games()})
   
   output$home_logo <- renderText({
-    name <- scores$home_team[scores$home == input$home_team]
+    name <- unique(scores$home_team[scores$home == input$home_team])
     paste0(
       '<img src="http://stats.nba.com/media/img/teams/logos/',
       name,
-      '_logo.svg" style="width:200px;height:200px">'
-    )
+      '_logo.svg" height="200" width="200">')
   })
   
   output$vis_logo <- renderText({
-    name <- scores$vis_team[scores$visitor == input$vis_team]
+    name <- unique(scores$vis_team[scores$visitor == input$vis_team])
     paste0(
-      "<img src='http://stats.nba.com/media/img/teams/logos/",
+      '<img src="http://stats.nba.com/media/img/teams/logos/',
       name,
-      "_logo.svg' style='width:243px;height:243px'>"
-    )
+      '_logo.svg" height="200" width="200">')
   })
-  
 }
 
 shinyApp(ui, server)

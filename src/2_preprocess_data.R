@@ -12,7 +12,6 @@ source(here::here("src/helper_funs.R"))
 #     - Char of 2004 is new
 #     - Seattle moved to OKC in 2008
 
-
 # functions -----------
 
 recode_team <- function(data, team_name, new_name) {
@@ -67,7 +66,6 @@ recode_team <- function(data, team_name, new_name) {
 }
 
 # import ----------------
-
 
 nba <- read_csv(here::here("output/nba_scores_1997-2018.csv"))
 
