@@ -30,10 +30,11 @@ ui <- fluidPage(
         choices = unique(elo$pretty_name),
         selected = "Philadelphia 76ers"
       ),
-      radioButtons(
-        "option", "Display by:",
-        choices = c("date_range", "season"),
-        selected = "season"
+      dateRangeInput(
+        "date_range", "Date Range",
+        start = "1997-10-01",
+        end = "2018-10-01",
+        format = "mm/dd/yyyy"
       )
     ),
     mainPanel(
@@ -44,50 +45,10 @@ ui <- fluidPage(
 
 server <- function(input, output) {
 
-  observeEvent(input$option, {
-    insertUI(
-      selector = "#date_range",
-      where = "afterEnd",
-      ui = dateRangeInput(
-        "daterange", "Date range",
-        start = "1997-10-01",
-        end = "2018-10-01",
-        format = "mm/dd/yyyy"
-      )
-    )
-  })
-  
-  observeEvent(input$option, {
-    insertUI(
-      selector = "#season",
-      where = "afterEnd",
-      ui = numericInput(
-        "season", "Season",
-        value = 2018
-      )
-      )
-  })
-  
   output$elo_plot <- renderPlot({
     
-      if (input$option == "date_range") {
-        
-        filtered_all <- elo %>% 
-          filter(
-            date >= input$dates[[1]], 
-            date <= input$dates[[2]]
-          )
-      }
     
-      if (input$option == "season"){
-        
-        filtered_all <- elo %>% 
-          filter(
-            season == input$season
-          )
-      }
-    
-    filtered_team <- filtered_all %>% 
+    filtered_team <- elo %>% 
       filter(
         pretty_name == input$team
       )
@@ -99,19 +60,11 @@ server <- function(input, output) {
           size = 1.5
         ) +
         geom_line(
-          data = filtered_all, 
+          data = elo, 
           aes(date, elo, group = team), 
           alpha = 0.1
         ) + 
-        scale_x_date(
-          breaks = seq.Date(
-            from = ymd(paste0(year(input$dates[[1]]), "1001")),
-            to = ymd(paste0(year(input$dates[[2]]), "1001")),
-            by = "1 year"
-          ), 
-          date_labels = as.character(unique(filtered_all$season))
-        ) +
-        labs(x = "season")
+        labs(x = "date")
     
     elo_plot
   })
