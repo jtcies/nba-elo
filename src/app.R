@@ -1,7 +1,13 @@
-library(tidyverse)
+library(dplyr)
+library(ggplot2)
 library(shiny)
 library(here)
 library(lubridate)
+library(jtcr)
+library(huxtable)
+library(readr)
+library(tidyr)
+library(elo)
 
 source(here::here("src/app_helpers.R"))
 
@@ -25,23 +31,10 @@ elo <- elo %>%
 
 elo_scores <- elo_scores %>% 
   mutate(
-    vis_win_prob = make_pct(1 - home_win_prob),
-    home_win_prob = make_pct(home_win_prob),
     `OT?` = if_else(is.na(ot), "", "yes"),
     notes = if_else(is.na(notes), "", "notes"),
     playoffs = if_else(playoffs == 1, "yes", "")
-  ) %>% 
-  select(
-    date,
-    vis_win_prob,
-    visitor,
-    visitor_pts,
-    home_pts,
-    home,
-    home_win_prob,
-    `OT?`,
-    playoffs
-  )
+  ) 
 
 ui <- fluidPage(
   
@@ -114,7 +107,7 @@ ui <- fluidPage(
           br(),
           br(),
           h2("NBA games on this day"),
-          tableOutput("games_date")
+          htmlOutput("games_date")
         )
       )
     )
@@ -123,6 +116,7 @@ ui <- fluidPage(
 
 server <- function(input, output) {
 
+# set up all of the outputs
   output$elo_plot <- renderPlot({
     
     filtered_team <- elo %>% 
@@ -134,14 +128,19 @@ server <- function(input, output) {
         geom_line(
           data = filtered_team, 
           aes(date, elo, group = team), 
-          size = 1.5
+          size = 1.5,
+          color = jtc_oranges[[2]]
         ) +
         geom_line(
           data = elo, 
           aes(date, elo, group = team), 
-          alpha = 0.1
+          alpha = 0.1,
+          color = jtc_blues[[3]]
         ) + 
-        labs(x = "date")
+        labs(
+          title = "Team ELO over time",
+          x = "date") +
+        theme_jtc()
     
     elo_plot
   })
@@ -167,18 +166,35 @@ server <- function(input, output) {
   })
   
   date_games <- reactive({
+    
     dat <- elo_scores %>% 
       filter(date == input$date) %>% 
-      select(-date) %>% 
-      rename(`away points` = visitor_pts,
-             `home points` = home_pts,
-             `away` = visitor,
-             `away win prob.` = vis_win_prob,
-             `home win prob.` = home_win_prob,
-             `playoffs?` = playoffs)
+      mutate(
+        vis_prob = make_pct(1 - home_win_prob),
+        home_prob = make_pct(home_win_prob)
+      ) %>% 
+      as_hux() %>% 
+      expected_highlight() %>% 
+      upset_highlight() %>% 
+      home_win_bold() %>% 
+      vis_win_bold() %>% 
+      select(
+        `away win prob.` = vis_prob,
+        `away` = visitor,
+        `away points` = visitor_pts,
+        `home points` = home_pts,
+        home,
+        `home win prob.` = home_prob,
+        `OT?`,
+        `playoffs?` = playoffs
+      ) %>% 
+      add_colnames() %>% 
+      to_html()
+  
     dat
   })
-  
+
+# create the final output
   output$home_elo <- renderText({
     paste0(round(home_dat()$elo), "\n(plus home bonus)")
   })
@@ -189,7 +205,7 @@ server <- function(input, output) {
   
   output$home_win_prob <- renderText({make_pct(prob())})
   output$vis_win_prob <- renderText({make_pct(1 - prob())})
-  output$games_date <- renderTable({date_games()})
+  output$games_date <- renderText({date_games()})
   
   output$home_logo <- renderText({
     name <- unique(scores$home_team[scores$home == input$home_team])
