@@ -38,9 +38,7 @@ elo_scores <- elo_scores %>%
 
 ui <- fluidPage(
   
-  tags$head(
-    includeCSS("../www/jtc_shiny_style.css")
-  ),
+    includeCSS("jtc_style_min.css"),
   
   tabsetPanel(
     type = "tabs",
@@ -70,12 +68,12 @@ ui <- fluidPage(
       sidebarLayout(
         sidebarPanel(
           selectInput(
-            "vis_team", "Away team",
+            "vis_team", "Away Team",
             choices = unique(elo$pretty_name),
             selected = "Golden State Warriors"
           ),
           selectInput(
-            "home_team", "Home team",
+            "home_team", "Home Team",
             choices = unique(elo$pretty_name),
             selected = "Cleveland Cavaliers"
           ),
@@ -89,13 +87,9 @@ ui <- fluidPage(
         ),
         mainPanel(
           fluidRow(
-            column(4, align = "center", h3("away team")),
-            column(4),
-            column(4, align = "center", h3("home team"))
-          ),
-          fluidRow(
             column(4, align = "center", htmlOutput("vis_logo")),
-            column(4),
+            column(4, align = "center", h3("at"),
+                   style = "margin-top: 100px"),
             column(4, align = "center", htmlOutput("home_logo"))
           ),
           fluidRow(
@@ -121,26 +115,38 @@ ui <- fluidPage(
 server <- function(input, output) {
 
 # set up all of the outputs
-  output$elo_plot <- renderPlot({
-    
-    filtered_team <- elo %>% 
+  elo_dates <- reactive({
+    elo %>% 
       filter(
-        pretty_name == input$team
+        date >= input$date_range[[1]],
+        date <= input$date_range[[2]]
       )
+  })
+    
+  elo_team <- reactive({
+    elo_dates() %>% 
+      filter(pretty_name == input$team)
+  })
+
+  output$elo_plot <- renderPlot({
     
       elo_plot <- ggplot() +
         geom_line(
-          data = filtered_team, 
+          data = elo_team(), 
           aes(date, elo, group = team), 
           size = 1.5,
           color = jtc_oranges[[2]]
         ) +
         geom_line(
-          data = elo, 
+          data = elo_dates(), 
           aes(date, elo, group = team), 
           alpha = 0.1,
           color = jtc_blues[[3]]
         ) + 
+        geom_hline(
+          aes(yintercept = 1500),
+          linetype = 3
+        ) +
         labs(
           title = "Team ELO over time",
           x = "date") +

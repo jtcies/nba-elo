@@ -1,0 +1,26 @@
+@import url('//fonts.googleapis.com/css?family=Libre+Baskerville:400,400i,700|Libre+Franklin:500,700');
+
+* {
+  font-family: 'Libre Franklin', sans-serif !important;
+  color: #4f4f4f !important;
+}
+
+p {
+  font-weight: 700;
+}
+
+h1, h2, h3, h4, h5, h6 {
+ font-weight: 700;
+}
+
+td, th {
+  white-space: normal !important;
+  max-width: 25% !important;
+}
+
+table {
+  max-width: 1000px !important;
+  width: 100% !important;
+  border-collapse: collapse !important;
+  table-layout: fixed !important;
+}
