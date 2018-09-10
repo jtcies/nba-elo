@@ -38,6 +38,10 @@ elo_scores <- elo_scores %>%
 
 ui <- fluidPage(
   
+  tags$head(
+    includeCSS("../www/jtc_shiny_style.css")
+  ),
+  
   tabsetPanel(
     type = "tabs",
     tabPanel(
