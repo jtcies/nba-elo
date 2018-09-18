@@ -5,8 +5,8 @@ account: jtcies
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 453424
-bundleId: 1591899
+bundleId: 1592009
 url: https://jtcies.shinyapps.io/nba-elo/
-when: 1537285705.19623
+when: 1537288545.39859
 asMultiple: FALSE
 asStatic: FALSE

@@ -5,5 +5,6 @@ calculating elo for nba teams
 
 - on compare page
   - use correct logos for each season
+  - add links to actual game
 - on ELO page
   - allow to look at by season
