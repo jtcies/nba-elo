@@ -1,0 +1,12 @@
+name: nba-elo
+title: nba-elo
+username:
+account: jtcies
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 453424
+bundleId: 1591899
+url: https://jtcies.shinyapps.io/nba-elo/
+when: 1537285705.19623
+asMultiple: FALSE
+asStatic: FALSE

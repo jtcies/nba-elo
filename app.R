@@ -9,7 +9,7 @@ library(readr)
 library(tidyr)
 library(elo)
 
-source(here::here("src/app_helpers.R"))
+source(here::here("global.R"))
 
 scores <- read_csv(here::here("output/nba_cleaned.csv"), guess_max = 5000)
 elo <- read_csv(here::here("output/running_elo.csv"), guess_max = 5000)
@@ -38,7 +38,7 @@ elo_scores <- elo_scores %>%
 
 ui <- fluidPage(
   
-    includeCSS("jtc_style_min.css"),
+    includeCSS("www/jtc_style_min.css"),
   
   tabsetPanel(
     type = "tabs",
@@ -46,6 +46,7 @@ ui <- fluidPage(
       "ELO",
       sidebarLayout(
         sidebarPanel(
+          p("Choose a team and date range to see ELO change over time."),
           selectInput(
             "team", "Team",
             choices = unique(elo$pretty_name),
@@ -67,6 +68,8 @@ ui <- fluidPage(
       "Compare",
       sidebarLayout(
         sidebarPanel(
+          p("Choose any two teams and any date to see how they match up."),
+          p("Below you can see actual NBA games on that day and their result."),
           selectInput(
             "vis_team", "Away Team",
             choices = unique(elo$pretty_name),
@@ -105,9 +108,17 @@ ui <- fluidPage(
           br(),
           br(),
           h2("NBA games on this day"),
-          htmlOutput("games_date")
+          htmlOutput("games_date"),
+          p("Note: blue represents an expected result, 
+            orange represents an upset")
         )
       )
+    ),
+    tabPanel(
+      "About",
+      br(),
+      p("All data from Basketball Reference (https://www.basketball-reference.com)"),
+      p("Team logos retrieved from https://stats.nba.com")
     )
   )
 )

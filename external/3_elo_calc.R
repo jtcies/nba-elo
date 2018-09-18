@@ -8,7 +8,7 @@ library(here)
 # uses elo as 'beginning of the day' before games have been played
 
 # get the assign season function
-source(here::here("src/helper_funs.R"))
+source(here::here("external/helper_funs.R"))
 
 # functions -------------
 elo_calc_in_season <- function(games, teams) {

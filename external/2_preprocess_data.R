@@ -3,7 +3,7 @@ library(here)
 library(lubridate)
 
 # get the assign season function
-source(here::here("src/helper_funs.R"))
+source(here::here("external/helper_funs.R"))
 
 # this script:
 # - creates a variable for the correct season
