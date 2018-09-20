@@ -1,5 +1,6 @@
 library(tidyverse)
 library(here)
+library(jtcr)
 
 # get cor and plot my and 538's elo
 
@@ -48,7 +49,17 @@ both %>%
   filter(season > 1997) %>% 
   ggplot(aes(elo, elo_538, color = season)) +
     geom_point() +
-    geom_smooth(method = "lm")
+    geom_smooth(method = "lm") +
+    labs(
+      title = "Calculated Elo vs 538 benchmark",
+      x = "calculated Elo",
+      y = "538 Elo"
+    ) +
+  theme_jtc() +
+  color_jtc()
+
+ggsave("output/figs/538_compare.png")
+ggsave(here::here("../../jtcies_site2/static/img/nba-elo/538_compare.png"))
 
 lm(elo_538 ~ elo, data = both)
 
