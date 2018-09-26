@@ -20,7 +20,22 @@ td, th {
 
 table {
   max-width: 1000px !important;
+  border-collapse: collapse !important;
+  table-layout: fixed !important;
+}
+
+.input-sm {
+  font-size: 10 !important; 
+} 
+
+label {
+  font-weight: 400 !important; 
+  margin-bottom: 10 !important; 
+}
+
+.huxtable {
   width: 100% !important;
+  max-width: 1000px !important;
   border-collapse: collapse !important;
   table-layout: fixed !important;
 }
