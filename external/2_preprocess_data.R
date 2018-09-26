@@ -67,27 +67,27 @@ recode_team <- function(data, team_name, new_name) {
 
 # import ----------------
 
-nba <- read_csv(here::here("output/nba_scores_1997-2018.csv"))
+games <- read_csv(here::here("output/nba_scores_1997-2018.csv"))
 
 # transform -------------------
 
 # season
-nba$season <- assign_season(nba$date)
+games$season <- assign_season(games$date)
 
 # name recode
-nba <- nba %>% 
+games <- games %>% 
   recode_team(home, "home_team") %>% 
   recode_team(visitor, "vis_team")
 
 # game number and playoffs
 
-nba <- nba %>% 
+games <- games %>% 
   arrange(date) %>% 
   group_by(season) %>% 
   mutate(game_id = row_number()) %>% 
   ungroup()
 
-nba_long <- nba %>% 
+games_long <- games %>% 
   select(season, game_id, home_team, vis_team) %>% 
   gather(game, team, 3:4) %>% 
   arrange(season, game_id) %>% 
@@ -103,8 +103,8 @@ nba_long <- nba %>%
     vis_game_number = vis_team
   )
 
-nba <- nba %>% 
-  left_join(nba_long, by = c("season", "game_id")) %>% 
+games <- games %>% 
+  left_join(games_long, by = c("season", "game_id")) %>% 
   mutate(
     playoffs = case_when(
       season == 2012 & home_game_number > 66 ~ 1,
@@ -113,4 +113,4 @@ nba <- nba %>%
     )
   )
 
-write_csv(nba, here::here("output/nba_cleaned.csv"))
+write_csv(games, here::here("output/nba_cleaned.csv"))

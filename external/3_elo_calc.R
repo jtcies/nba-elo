@@ -58,7 +58,7 @@ carry_over <- function(teams) {
       elo = (.75 * elo) + (.25 * 1505),
       date = ymd(paste0(season, "0930")),
       season = season + 1 # add one for start of new season
-  )
+    )
   bind_rows(new_season, teams)
 }
 
@@ -87,12 +87,12 @@ fill_elo <- function(data) {
 
 # import and create new teams table ----------------------
 
-nba <- read_csv(here::here("output/nba_cleaned.csv"), guess_max = 5000)
+games <- read_csv(here::here("output/nba_cleaned.csv"), guess_max = 5000)
 
 # create a base elo table
 # start everyone at 1500 in 1997 season
 # for expansion teams, start at 1300 in new season, rec by 538
-teams <- nba %>% 
+teams <- games %>% 
   distinct(home_team) %>% 
   rename(team = home_team) %>% 
   mutate(
@@ -103,7 +103,7 @@ teams <- nba %>%
 
 # run the function and clean up -----------------
 # this will take a few minutes to run
-running_elo <- elo_calc(nba, teams)
+running_elo <- elo_calc(games, teams)
 
 # fill in missing dates
 complete_elo <- running_elo %>% 

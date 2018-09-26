@@ -58,18 +58,18 @@ br_urls <- paste0(
 )
 
 # get only valid urls and scrape
-br_dat <- map(br_urls, ~ifelse(RCurl::url.exists(.), ., NA)) %>% 
+games <- map(br_urls, ~ifelse(RCurl::url.exists(.), ., NA)) %>% 
   .[!is.na(.)] %>% 
   map(., scrape_br) %>% 
   bind_rows()
 
 # clean up
 # select the valid columns
-br_dat <- br_dat[1:10]
+games <- games[1:10]
 # convert date to date format and sort
-br_dat <- br_dat %>% 
+games <- games %>% 
   mutate(date = mdy(date)) %>% 
   arrange(date)
 
 # write the data
-write_csv(br_dat, here::here("output/nba_scores_1997-2018.csv"))
+write_csv(games, here::here("output/nba_scores_1997-2018.csv"))

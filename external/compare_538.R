@@ -42,23 +42,26 @@ f38_tidy <- bind_rows(f38_tidy1, f38_tidy2) %>%
 # combine
 both <- f38_tidy %>% 
   select(-season) %>% 
-  left_join(elo, by = c("date", "team"))
+  left_join(elo, by = c("date", "team")) %>% 
+  filter(season > 1997)
+
+rsq <- round(cor(both$elo, both$elo_538), 2)
 
 # plot
 both %>% 
-  filter(season > 1997) %>% 
-  ggplot(aes(elo, elo_538, color = season)) +
-    geom_point() +
-    geom_smooth(method = "lm") +
+  ggplot(aes(elo, elo_538)) +
+    geom_point(color = jtc_blues[[3]], alpha = 0.5) +
+    geom_smooth(method = "lm", color = jtc_oranges[[2]]) +
     labs(
       title = "Calculated Elo vs 538 benchmark",
       x = "calculated Elo",
-      y = "538 Elo"
+      y = "538 Elo",
+      subtitle = paste0("r^2 = ", rsq)
     ) +
-  theme_jtc() +
-  color_jtc()
+    theme_jtc() 
+  
 
-ggsave("output/figs/538_compare.png")
+ggsave(here::here("output/figs/538_compare.png"))
 ggsave(here::here("../../jtcies_site2/static/img/nba-elo/538_compare.png"))
 
 lm(elo_538 ~ elo, data = both)
